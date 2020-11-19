@@ -19,11 +19,7 @@ hfri_ls_index.rename({' Monthly Index Value': 'HFRI LS Index'}, axis=1, inplace=
 hfri_ls_index = hfri_ls_index.pct_change()
 
 
-fund_list = [dyn_alpha, ehp_adv, hgc, timelo, hfri_ls_index]
-
-for fund in fund_list:
-
-    print(fund.index[0])
+fund_list = [dyn_alpha, ehp_adv, timelo, hfri_ls_index]
 
 
 start_date = start_date_finder(dates=[fund.index[0] for fund in fund_list], how='newest')
@@ -40,22 +36,23 @@ for fund in fund_list:
 
 combined_hf = combined_hf.apply(pd.to_numeric)
 
-combined_hf.fillna(0, inplace=True)
+# combined_hf.fillna(0, inplace=True)
+# combined_hf['composite'] = combined_hf.mean(axis=1)
+
+combined_hf.fillna(0, axis=0, inplace=True)
+
+# add back in hgc here, so that we can get the average performance of the funds before 2016, then once HGC is live
+# we combine their returns into the average
+combined_hf['hgc'] = hgc
+combined_hf['hgc'].loc[hgc.index[0]:hgc.index[-1]].fillna(0, inplace=True)
+
+# calculate the cumulative product for each investment
+combined_hf = np.cumprod(1 + combined_hf, axis=0)
+
+# calculate the composite index as the average of the other investments' returns.
 combined_hf['composite'] = combined_hf.mean(axis=1)
 
-
-fig = plt.figure(figsize=(9, 6))
-ax1 = fig.add_subplot(1, 1, 1)
-
-x = 0
-
-for fund in combined_hf.columns:
-
-    ax1.plot(np.cumprod(1 + combined_hf[fund]), label=combined_hf.columns[x])
-
-    x += 1
-
-ax1.legend()
+combined_hf.plot()
 plt.show()
 
 
