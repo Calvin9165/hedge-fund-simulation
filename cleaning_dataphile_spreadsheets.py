@@ -56,7 +56,8 @@ combined_hf.plot()
 plt.show()
 
 
-
+# composite_hedge_funds = combined_hf['composite'].pct_change()
+# composite_hedge_funds.to_csv('composite hedge fund returns.csv')
 
 
 
