@@ -18,8 +18,9 @@ hfri_ls_index.set_index(keys='Date', inplace=True)
 hfri_ls_index.rename({' Monthly Index Value': 'HFRI LS Index'}, axis=1, inplace=True)
 hfri_ls_index = hfri_ls_index.pct_change()
 
+# fund_list = [dyn_alpha, ehp_adv, timelo, hfri_ls_index]
 
-fund_list = [dyn_alpha, ehp_adv, timelo, hfri_ls_index]
+fund_list = [ehp_adv, hgc]
 
 
 start_date = start_date_finder(dates=[fund.index[0] for fund in fund_list], how='newest')
@@ -43,8 +44,8 @@ combined_hf.fillna(0, axis=0, inplace=True)
 
 # add back in hgc here, so that we can get the average performance of the funds before 2016, then once HGC is live
 # we combine their returns into the average
-combined_hf['hgc'] = hgc
-combined_hf['hgc'].loc[hgc.index[0]:hgc.index[-1]].fillna(0, inplace=True)
+# combined_hf['hgc'] = hgc
+# combined_hf['hgc'].loc[hgc.index[0]:hgc.index[-1]].fillna(0, inplace=True)
 
 # calculate the cumulative product for each investment
 combined_hf = np.cumprod(1 + combined_hf, axis=0)
@@ -55,9 +56,10 @@ combined_hf['composite'] = combined_hf.mean(axis=1)
 combined_hf.plot()
 plt.show()
 
+combined_hf.rename({'composite': 'composite_hedge_funds'}, axis=1, inplace=True)
 
-# composite_hedge_funds = combined_hf['composite'].pct_change()
-# composite_hedge_funds.to_csv('composite hedge fund returns.csv')
+composite_hedge_funds = combined_hf['composite_hedge_funds'].pct_change()
+composite_hedge_funds.to_csv('composite hedge fund returns.csv')
 
 
 
